@@ -61,6 +61,7 @@ public class CarBehaviour : MonoBehaviour
     {
         if (!hasWon)
         {
+            /*
             if (moveDir > 0)
             {
                 rb.drag = Drag.Evaluate(Mathf.Abs(currentVelocity)) * initialDrag;
@@ -70,6 +71,9 @@ public class CarBehaviour : MonoBehaviour
                 rb.drag = Drag.Evaluate(Mathf.Abs(currentVelocity)) * initialDrag * NonSpinningForce;
                 // rb.AddForce(transform.up * slideForwards.Evaluate(speedAsDec));
             }
+            */
+            rb.drag = Drag.Evaluate(Mathf.Abs(currentVelocity)) * initialDrag;
+
 
             SpeedSlider.maxValue = MaxSpeed;
             SpeedSlider.value = currentVelocity;
