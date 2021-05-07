@@ -32,12 +32,23 @@ public class CarBehaviour : MonoBehaviour
     bool isTouchingTrack;
     bool isTouchingGravel;
     bool isTouchingSand;
+
+    bool hasWon;
+    public GameObject WinCanvas;
+    public Text finalTime;
+
+    Timer timer_;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.drag = initialDrag;
 
         Application.targetFrameRate = 144;
+
+        timer_ = GetComponent<Timer>();
+
+        Cursor.visible = true;
     }
 
     private void Update()
@@ -48,60 +59,63 @@ public class CarBehaviour : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (moveDir > 0)
+        if (!hasWon)
         {
-            rb.drag = Drag.Evaluate(Mathf.Abs(currentVelocity)) * initialDrag;
-        }
-        else
-        {
-            rb.drag = Drag.Evaluate(Mathf.Abs(currentVelocity)) * initialDrag * NonSpinningForce;
-           // rb.AddForce(transform.up * slideForwards.Evaluate(speedAsDec));
-        }
-
-        SpeedSlider.maxValue = MaxSpeed;
-        SpeedSlider.value = currentVelocity;
-
-        if (Mathf.Abs(currentVelocity) < MaxSpeed)
-        {
-            if (moveDir < 0 && currentVelocity > 0)
+            if (moveDir > 0)
             {
-                rb.AddForce(transform.up * moveDir * brakingForce);
+                rb.drag = Drag.Evaluate(Mathf.Abs(currentVelocity)) * initialDrag;
             }
             else
             {
-                rb.AddForce(transform.up * moveDir * Power);
+                rb.drag = Drag.Evaluate(Mathf.Abs(currentVelocity)) * initialDrag * NonSpinningForce;
+                // rb.AddForce(transform.up * slideForwards.Evaluate(speedAsDec));
             }
-        }
 
-        if (moveDir > 0)
-        {
-            rb.AddTorque(-rotDir * lowSpeedTurnLimiter.Evaluate(Mathf.Abs(currentVelocity)) * Turningangle);
-        }
-        else
-        {
-            rb.AddTorque(-rotDir * lowSpeedTurnLimiter.Evaluate(Mathf.Abs(currentVelocity)) * Turningangle / 5);
-        }
+            SpeedSlider.maxValue = MaxSpeed;
+            SpeedSlider.value = currentVelocity;
 
-        if (!isTouchingTrack && !isTouchingSand)
-        {
-            isTouchingGravel = true;
-        }
-        else
-        {
-            isTouchingGravel = false;
-        }
+            if (Mathf.Abs(currentVelocity) < MaxSpeed)
+            {
+                if (moveDir < 0 && currentVelocity > 0)
+                {
+                    rb.AddForce(transform.up * moveDir * brakingForce);
+                }
+                else
+                {
+                    rb.AddForce(transform.up * moveDir * Power);
+                }
+            }
 
-        if (isTouchingGravel)
-        {
-            rb.drag *= 2f;
-        }
-        if (isTouchingSand)
-        {
-            rb.drag *= 7f;
-        }
-        if (isTouchingTrack)
-        {
-            //hdbs
+            if (moveDir > 0)
+            {
+                rb.AddTorque(-rotDir * lowSpeedTurnLimiter.Evaluate(Mathf.Abs(currentVelocity)) * Turningangle);
+            }
+            else
+            {
+                rb.AddTorque(-rotDir * lowSpeedTurnLimiter.Evaluate(Mathf.Abs(currentVelocity)) * Turningangle / 5);
+            }
+
+            if (!isTouchingTrack && !isTouchingSand)
+            {
+                isTouchingGravel = true;
+            }
+            else
+            {
+                isTouchingGravel = false;
+            }
+
+            if (isTouchingGravel)
+            {
+                rb.drag *= 2f;
+            }
+            if (isTouchingSand)
+            {
+                rb.drag *= 7f;
+            }
+            if (isTouchingTrack)
+            {
+                //hdbs
+            }
         }
 
     }
@@ -124,6 +138,20 @@ public class CarBehaviour : MonoBehaviour
             isTouchingSand = true;
         }
 
+        if (other.gameObject.CompareTag("Win") && !hasWon)
+        {
+            Win();
+        }
+
+    }
+
+    void Win()
+    {
+        hasWon = true;
+        WinCanvas.SetActive(true);
+
+        timer_.shouldCount = false;
+        finalTime.text = "Your Score: " + timer_.value.ToString("0.00") + " seconds!";
     }
 
     private void OnTriggerExit2D(Collider2D collision)
